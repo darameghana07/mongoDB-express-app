@@ -1,11 +1,15 @@
+import "dotenv/config";
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
 
 const app = express();
-const port = 7000;
+const port = process.env.PORT || 7001;
 
 // MongoDB connection
-const mongoUrl = "mongodb://admin:admin123@localhost:27017";
+const mongoUrl = process.env.MONGO_URI;
+if (!mongoUrl) {
+  throw new Error("MONGO_URI environment variable is missing");
+}
 const databaseName = "library_db";
 
 const client = new MongoClient(mongoUrl);
@@ -130,7 +134,9 @@ app.delete("/api/v1/books/:id", (req, res) => {
       throw err;
     });
 });
-
+app.get("/", (req, res) => {
+  res.status(200).send("Library API is running!");
+});
 // 404 Not Found middleware
 app.use((req, res) => {
   res.status(404).json({ message: "Not Found" });
@@ -145,5 +151,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
